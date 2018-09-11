@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+# Copyright (c) 2018 UPennEoR
+# Licensed under the 2-clause BSD License
+
 from pyuvdata import UVData
 import numpy as np
 from astropy import units as u

@@ -1,5 +1,7 @@
 #!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
+# Copyright (c) 2018 UPennEoR
+# Licensed under the 2-clause BSD License
 
 from __future__ import print_function, division, absolute_import
 import numpy as np

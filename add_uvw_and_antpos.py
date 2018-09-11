@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Copyright (c) 2018 UPennEoR
+# Licensed under the 2-clause BSD License
+
 import aipy as a, numpy as np, scipy.constants as c
 import optparse, sys, os
 import pyuvdata
