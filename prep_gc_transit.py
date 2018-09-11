@@ -11,6 +11,10 @@ from astropy import units
 from astropy.time import Time
 from pyuvdata import UVData
 
+# define the directory where data live
+data_dir = '/data4/paper/HERA19Golden/RawData'
+os.chdir(data_dir)
+
 # define the RA of the galactic center
 # RA is 17h45m40.04s in J2000 according to wikipedia
 gc_ra = units.Quantity(17 + 45 / 60 + 40.04 / 3600, units.hourangle)
@@ -35,6 +39,10 @@ for jd in jd_dirs:
     # make a list of the raw xx data files
     pattern = 'zen\.[0-9]{7}\.[0-9]{5}\.xx\.HH\.uvcRP'
     miriad_files = [f for f in sorted(os.listdir(os.getcwd())) if re.match(pattern, f)]
+
+    # initialize filenames for max and min lst (defined above)
+    min_fn = None
+    max_fn = None
     for fn in miriad_files:
         uvd = UVData()
         uvd.read_miriad(fn)
@@ -52,16 +60,30 @@ for jd in jd_dirs:
         if np.count_nonzero(signchange_max) > 0:
             max_fn = fn
 
-    # now go back and read in all the relevant files
-    imin = miriad_files.index(min_fn)
-    imax = miriad_files.index(max_fn)
+    # get the indices corresponding to max and min lst
+    # handle edge-cases of transition happening on a boundary; assume that we only need neighboring files
+    if min_fn is None and max_fn is None:
+        raise ValueError("no sign change for max and min LST ranges; either a "
+                         "pathological case of both sign changes falling on file "
+                         "boundaries, or no sign changes present in the data.")
+    if min_fn is not None:
+        imin = miriad_files.index(min_fn)
+    else:
+        imin = miriad_files.index(max_fn) - 1
+    if max_fn is not None:
+        imax = miriad_files.index(max_fn)
+    else:
+        imax = miriad_files.index(min_fn) + 1
 
+    # flesh out list to all 4 polarizations
     base_list = miriad_files[imin:imax+1]
     fn_list = []
     for fn in base_list:
         obs_list = [re.sub('\.xx\.', '.' + pol + '.', fn) for pol in pols]
         fn_list.extend(obs_list)
 
+    # get around weird concatenation bug by combining polarizations first, then
+    # adjacent times
     uvd = UVData()
     print("Reading " + ' '.join(fn_list) + '...')
     for i in range(len(fn_list) // 4):
@@ -85,7 +107,7 @@ for jd in jd_dirs:
     print("Phasing...")
     uvd.phase_to_time(Time(uvd.time_array[0], format='jd', scale='utc'))
     print("Writing " +  outfile + '...')
-    uvd.write_uvfits(outfile, spoof_nonessential=True, clobber=True)
+    uvd.write_uvfits(outfile, spoof_nonessential=True)
 
     # clean up
     del(uvd)

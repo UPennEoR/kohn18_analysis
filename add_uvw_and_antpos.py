@@ -3,17 +3,20 @@
 # Copyright (c) 2018 UPennEoR
 # Licensed under the 2-clause BSD License
 
-import aipy as a, numpy as np, scipy.constants as c
+from __future__ import print_function, division, absolute_import
+import aipy
+import numpy as np
+import scipy.constants as const
 import optparse, sys, os
 import pyuvdata
 
 o = optparse.OptionParser()
 o.set_usage('add_uvws.py [options] *.uv')
 o.set_description(__doc__)
-a.scripting.add_standard_options(o,cal=True)
-opts,args = o.parse_args(sys.argv[1:])
+aipy.scripting.add_standard_options(o, cal=True)
+opts, args = o.parse_args(sys.argv[1:])
 
-print 'opts.cal',opts.cal
+print('opts.cal', opts.cal)
 
 #uv_latlonalt = pyuvdata.UVData()
 #uv_latlonalt.read_miriad('zen.2458098.60274.xx.HH.uv')
@@ -22,20 +25,20 @@ lat, lon, alt = (-0.5361918109651213, 0.37399448506783717, 1073.000000008382)
 
 for uvfile in args:
     uvofile = uvfile+'U'
-    print uvfile,'->',uvofile
+    print(uvfile, '->', uvofile)
     if os.path.exists(uvofile):
-        print uvofile, 'exists, skipping.'
+        print(uvofile, 'exists, skipping.')
         continue
     
-    uvi = a.miriad.UV(uvfile)
-    uvo = a.miriad.UV(uvofile, status='new')
+    uvi = aipy.miriad.UV(uvfile)
+    uvo = aipy.miriad.UV(uvofile, status='new')
     
-    #aa = a.phs.ArrayLocation(('-30:43:17.5','21:25:41.9'))
+    #aa = aipy.phs.ArrayLocation(('-30:43:17.5','21:25:41.9'))
     #get the positions in the rotated ECEF coordinates
-    aa = a.cal.get_aa(opts.cal,np.array([0.15]))
+    aa = aipy.cal.get_aa(opts.cal,np.array([0.15]))
     ENU_antpos = aa.antpos_ideal.T
     ECEF_antpos = pyuvdata.ECEF_from_ENU(ENU_antpos, lat, lon, alt)
-    rotECEF_antpos = pyuvdata.rotECEF_from_ECEF(ECEF_antpos.T, lon) * 10**9 / c.c
+    rotECEF_antpos = pyuvdata.rotECEF_from_ECEF(ECEF_antpos.T, lon) * 10**9 / const.c
     nints = 0
     curtime = None
     
