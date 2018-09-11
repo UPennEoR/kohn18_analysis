@@ -2,6 +2,7 @@
 # Copyright (c) 2018 UPennEoR
 # Licensed under the 2-clause BSD License
 
+from __future__ import print_function, division, absolute_import
 from pyuvdata import UVData
 import numpy as np
 from astropy import units
@@ -16,7 +17,7 @@ golden_path = '/data4/paper/HERA19Golden/Simulation/'
 for simfile in simfiles:
     filename = simfile.split('/')[-1]
     uvd = UVData()
-    print 'Reading ' + simfile
+    print('Reading ' + simfile)
     uvd.read_miriad(simfile)
     # Fix conjugation error
     uvd.data_array *= -1.
@@ -27,5 +28,5 @@ for simfile in simfiles:
                                  / np.power(wvl,2).squeeze()), uvd.data_array.shape)
     uvd.data_array *= Ksr2Jy
     outfile = golden_path + filename+'C'
-    print 'Writing ' + outfile
+    print('Writing ' + outfile)
     uvd.write_miriad(outfile)
