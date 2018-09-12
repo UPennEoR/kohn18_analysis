@@ -11,9 +11,22 @@ from astropy import units
 from astropy.time import Time
 from pyuvdata import UVData
 
-# define the directory where data live
-data_dir = '/data4/paper/HERA19Golden/RawData'
-os.chdir(data_dir)
+# define the directories where data live
+real_data = False
+if real_data:
+    # actual raw data
+    data_dirs = ['/data4/paper/HERA19Golden/RawData/2457548',
+                 '/data4/paper/HERA19Golden/RawData/2457548',
+                 '/data4/paper/HERA19Golden/RawData/2457548',
+                 '/data4/paper/HERA19Golden/RawData/2457548',
+                 '/data4/paper/HERA19Golden/RawData/2457548',
+                 '/data4/paper/HERA19Golden/RawData/2457548',
+                 '/data4/paper/HERA19Golden/RawData/2457548',
+                 '/data4/paper/HERA19Golden/RawData/2457548']
+    uv_ext = 'uvcRP'
+else:
+    data_dirs = ['/data4/paper/HERA19Golden/Simulation']
+    uv_ext = 'uvC'
 
 # define the RA of the galactic center
 # RA is 17h45m40.04s in J2000 according to wikipedia
@@ -28,16 +41,13 @@ lst_max = gc_ra + delta_t / 2
 pols = ['xx', 'yy', 'xy', 'yx']
 
 # loop over miriad files in a directory
-jd_dirs = [d for d in sorted(os.listdir(os.getcwd())) if '24575' in d]
-for jd in jd_dirs:
+for data_dir in data_dirs:
     # status update
-    print(jd)
-    abspath = os.path.abspath(jd)
-    basename = os.path.basename(jd)
-    os.chdir(jd)
+    print(data_dir)
+    os.chdir(data_dir)
 
     # make a list of the raw xx data files
-    pattern = 'zen\.[0-9]{7}\.[0-9]{5}\.xx\.HH\.uvcRP'
+    pattern = 'zen\.[0-9]{{7}}\.[0-9]{{5}}\.xx\.HH\.{uv_ext}'.format(uv_ext=uv_ext)
     miriad_files = [f for f in sorted(os.listdir(os.getcwd())) if re.match(pattern, f)]
 
     # initialize filenames for max and min lst (defined above)
@@ -111,4 +121,3 @@ for jd in jd_dirs:
 
     # clean up
     del(uvd)
-    os.chdir('..')
