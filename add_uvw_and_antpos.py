@@ -24,7 +24,7 @@ print('opts.cal', opts.cal)
 lat, lon, alt = (-0.5361918109651213, 0.37399448506783717, 1073.000000008382)
 
 for uvfile in args:
-    uvofile = uvfile+'U'
+    uvofile = uvfile+'P'
     print(uvfile, '->', uvofile)
     if os.path.exists(uvofile):
         print(uvofile, 'exists, skipping.')
