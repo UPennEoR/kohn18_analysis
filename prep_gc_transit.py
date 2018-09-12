@@ -50,6 +50,10 @@ for data_dir in data_dirs:
     pattern = 'zen\.[0-9]{{7}}\.[0-9]{{5}}\.xx\.HH\.{uv_ext}'.format(uv_ext=uv_ext)
     miriad_files = [f for f in sorted(os.listdir(os.getcwd())) if re.match(pattern, f)]
 
+    # extract integer JD
+    pattern = 'zen\.([0-9]{7})\.'
+    jd = re.match(pattern, miriad_files[0]).group(1)
+
     # initialize filenames for max and min lst (defined above)
     min_fn = None
     max_fn = None
@@ -113,7 +117,7 @@ for data_dir in data_dirs:
     uvd.select(times=uvd.time_array[indices])
 
     # write out to a single uvfits file
-    outfile = 'gc.' + jd + '.uvcRP.uvfits'
+    outfile = 'gc.' + jd + '.{}.uvfits'.format(uv_ext)
     print("Phasing...")
     uvd.phase_to_time(Time(uvd.time_array[0], format='jd', scale='utc'))
     print("Writing " +  outfile + '...')
