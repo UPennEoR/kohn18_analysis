@@ -20,13 +20,20 @@ for simfile in simfiles:
     print('Reading ' + simfile)
     uvd.read_miriad(simfile)
     # Fix conjugation error
-    uvd.data_array *= -1.
+    uvd.data_array = np.conj(uvd.data_array)
     # Fix calibration to Jy
     # Look, Ma! No loops!
     wvl = (const.c / (uvd.freq_array*units.Hz)).to(units.m).value
+    # Factor of 2 should be checked.  This might disagree with hera_pspec convention for
+    # forming Stokes parameters.  I think it is independent of the beam, because it is applied as 
+    # a conversion from a sky model in Kelvin to one in Jy/sr, and can be pulled outside the 
+    # visibility integral.  
     Ksr2Jy = np.reshape(np.outer(np.ones(uvd.Nblts), 1.e26 * 2. * const.k_B.value
                                  / np.power(wvl,2).squeeze()), uvd.data_array.shape)
     uvd.data_array *= Ksr2Jy
-    outfile = golden_path + filename+'C'
-    print('Writing ' + outfile)
-    uvd.write_miriad(outfile)
+    uvoutfile = golden_path + filename+'C'
+    print('Writing ' + uvoutfile)
+    uvd.write_miriad(uvoutfile,clobber=True)
+    uvh5outfile = golden_path+filename+'C.uvh5'
+    print('Writing '+uvh5outfile)
+    uvd.write_uvh5(uvh5outfile,clobber=True)
