@@ -1,0 +1,22 @@
+The antenna positions as read in through aipy 
+
+antpos = aa.antpos_ideal.T.flatten()
+
+appear to be meters, in an ENU coordinate system: (x,y) looks like the hex, z is nearly 0
+
+but that's not what official miriad does, and is not what pyuvdata is expecting
+
+per Bryna:
+
+miriad positions should be in an ECEF frame that’s rotated to put the x axis through the local meridian. 
+
+(uvfits uses that convention as well, except that uvfits wants them to be relative to the telescope location (which is in ECEF, not the rotated ECEF))
+
+pyuvdata has functions to do ECEF_from_ENU + rotECEF_from_ECEF
+
+the pyuvdata object has positions in ECEF (not the rotated frame) and they’re relative to the telescope location
+
+Proposal: import pyuvdata into add_uvws_and_antpos.py and convert antpos to rotECEF frame and write out.
+
+Hopefully, reading back into pyuvdata.UVData.get_enu_antpos should give what's expected
+
