@@ -59,9 +59,14 @@ def main(ap):
     delay_flags = np.array(map(lambda a: delay_flags[delay_ants.index(a), :] if a in delay_ants else True, ants))
 
     # convert delays into complex gains; freqs has units of Hz
-    delay_gains = np.exp(2j * np.pi * np.einsum('a,bc->bac', freqs, delays))[:, :, np.newaxis, :]
+    delay_gains = np.exp(2j * np.pi * np.einsum('a,bc->bac', freqs - freqs.min(), delays))[:, :, np.newaxis, :]
     delay_gain_flags = delay_flags[:, np.newaxis, :]
     delay_gain_flags = np.repeat(delay_gain_flags, Nfreqs, axis=1)[:, :, np.newaxis, :]
+
+    assert(np.allclose(delay_gains[0, :, 0, 0], np.exp(2j * np.pi * (freqs - freqs.min()) * delays[0, 0])))
+    assert(np.allclose(delay_gains[0, :, 0, 1], np.exp(2j * np.pi * (freqs - freqs.min()) * delays[0, 1])))
+    assert(np.allclose(delay_gains[-1, :, 0, 0], np.exp(2j * np.pi * (freqs - freqs.min()) * delays[-1, 0])))
+    assert(np.allclose(delay_gains[-1, :, 0, 1], np.exp(2j * np.pi * (freqs - freqs.min()) * delays[-1, 1])))
 
     # multiply into gains
     gains *= delay_gains
@@ -106,6 +111,8 @@ def main(ap):
     right_shape = (Nants, Nfreqs, Njones)
     if amp.shape != (Nants, Nfreqs, Njones):
         raise ValueError("amp shape is {}; was expecting {}".format(amp.shape, right_shape))
+    assert(np.allclose(amp[0, :, 0], amp[1, :, 0]))
+    assert(np.allclose(amp[0, :, 0], amp[0, :, 1]))
 
     # add an extra dummy time axis
     amp = amp[:, :, np.newaxis, :]
