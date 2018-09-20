@@ -53,9 +53,9 @@ if __name__ == '__main__':
     bcal = args.Bcal
     print("extracting bandpass from {}...".format(bcal))
     tb.open(bcal)
-    bp = tb.getcol('CPARAM').squeeze()
+    bp = tb.getcol('CPARAM')
     bp_ants = tb.getcol('ANTENNA1')
-    bp_flags = tb.getcol('FLAG').squeeze()
+    bp_flags = tb.getcol('FLAG')
     tb.close()
     # load spectral window info
     tb.open(bcal + "/SPECTRAL_WINDOW")
@@ -64,7 +64,7 @@ if __name__ == '__main__':
 
     # save out to hdf5
     fileout = "{}.h5".format(bcal)
-    print("saving {}...".format(fileout))
+    print("writing {}...".format(fileout))
     with h5py.File(fileout, 'w') as f:
         header = f.create_group("Header")
         header["Bcal_file"] = bcal
