@@ -73,6 +73,11 @@ def main(ap):
         assert(np.allclose(delay_gains[-1, :, 0, 0], np.exp(-2j * np.pi * (freqs - freqs.min()) * delays[-1, 0])))
         assert(np.allclose(delay_gains[-1, :, 0, 1], np.exp(-2j * np.pi * (freqs - freqs.min()) * delays[-1, 1])))
 
+        # make sure we have the right shape
+        right_shape = (Nants, Nfreqs, 1, Njones)
+        if delay_gains.shape != right_shape:
+            raise ValueError("bandpass gains are not the right shape; expecting {}, got {}".format(right_shape, delay_gains.shape))
+
         # multiply into gains
         gains *= delay_gains
 
@@ -92,15 +97,21 @@ def main(ap):
 
         # get number of frequencies
         bp_Nfreqs = len(bp_freqs)
+
         # reorder antennas
-        bp_gains = np.array([bp_gains[bp_ants.index(a), :, :].squeeze() if a in bp_ants
+        bp_gains = np.array([bp_gains[bp_ants.index(a), :, :] if a in bp_ants
                              else np.ones((bp_Nfreqs, Njones), dtype=np.complex) for a in ants])
-        bp_flags = np.array([bp_flags[bp_ants.index(a), :, :].squeeze() if a in bp_ants
+        bp_flags = np.array([bp_flags[bp_ants.index(a), :, :] if a in bp_ants
                              else np.ones((bp_Nfreqs, Njones), dtype=np.bool) for a in ants])
 
         # get gains and flags into the right shape
         bp_gains = bp_gains[:, :, np.newaxis, :]
         bp_flags = bp_flags[:, :, np.newaxis, :]
+
+        # make sure we have the right shape
+        right_shape = (Nants, Nfreqs, 1, Njones)
+        if bp_gains.shape != right_shape:
+            raise ValueError("bandpass gains are not the right shape; expecting {}, got {}".format(right_shape, bp_gains.shape))
 
         # multipy into gains
         gains *= bp_gains.conj()
@@ -111,8 +122,16 @@ def main(ap):
     # read in overall amplitude spectrum
     afile = args.acal
     if afile is not None:
-        with h5py.File(afile, 'r') as f:
-            amp = f["/Data/spectrum_scale"].value
+        filename, ext = os.path.splitext(afile)
+        if ext == '.npz':
+            f = np.load(afile)
+            amp = f["SpectrumScale"]
+        elif ext == '.h5' or ext == '.hdf5':
+            # assume spectrum is stored in hdf5 format
+            with h5py.File(afile, 'r') as f:
+                amp = f["/Data/spectrum_scale"].value
+        else:
+            raise ValueError("unrecognized filetype for abscale spectrum")
 
         # turn it into the right shape
         amp = np.stack((amp,) * Njones).T
@@ -127,7 +146,13 @@ def main(ap):
         amp = amp[:, :, np.newaxis, :]
 
         # multiply into the gains; we take the square root so that g_i * g_j^* gives the original
-        gains *= np.sqrt(amp)
+        # also, some frequencies have values of inf, so we need to handle those separately
+        sqrt_amp = np.where(amp == np.inf, np.inf, np.sqrt(amp))
+        gains *= sqrt_amp
+
+        # adjust flags to account for inf values
+        amp_flags = np.where(amp == np.inf, True, False).astype(np.bool)
+        flags += amp_flags
 
     # make the gains and flags the right number of time samples
     gains = np.repeat(gains, Ntimes, axis=2)
