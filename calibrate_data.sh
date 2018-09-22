@@ -1,4 +1,10 @@
 #!/bin/bash
+# Copyright (c) 2018 UPennEoR
+# Licensed under the BSD 2-clause License
+
+# This script is calibrate_data.sh. It is intended to calibrate all of the
+# HERA19 Golden Set data with the same bandpass calibration and absolute scale
+# reference spectrum.
 
 # activate conda environment
 source activate hera
