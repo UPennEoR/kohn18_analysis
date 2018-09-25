@@ -28,7 +28,7 @@ for JD in 2457548 2457549 2457550 2457551 2457552 2457553 2457554 2457555; do
 
     # make a list of all xx files
     xx_files=`ls *.xx.HH.uvcRP.uvh5`
-    for xx_fn in xx_files; do
+    for xx_fn in ${xx_files}; do
 	# make a calfits file
         calfits_fn=`echo ${xx_fn} | sed s/uvh5/calfits/ | sed s/\.xx\././`
         echo python ${CALFITS_SCRIPT} --bcal ${BCAL} --acal ${ACAL} --overwrite --fname ${calfits_fn} --uv_file ${xx_fn}
