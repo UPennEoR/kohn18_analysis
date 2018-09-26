@@ -20,6 +20,7 @@ ap.add_argument("--bcal", type=str, default=None, help="name of file containing 
 ap.add_argument("--acal", type=str, default=None, help="name of file containing absolute scale reference spectrum")
 ap.add_argument("--overwrite", default=False, action="store_true", help="overwrite output file if it exists")
 ap.add_argument("--multiply_gains", default=False, action="store_true", help="change gain convention from divide to multiply")
+ap.add_argument("--smooth_ratio", default=False, action="store_true", help="smooth sim/data ratio with a low-order polynomial")
 
 
 def main(ap):
@@ -132,6 +133,18 @@ def main(ap):
                 amp = f["/Data/spectrum_scale"].value
         else:
             raise ValueError("unrecognized filetype for abscale spectrum")
+
+        # optionally smooth the data
+        if args.smooth_ratio:
+            # define frequencies -- assume 1024 frequency channels between 100 and 200 MHz
+            freqs = np.linspace(100., 200., num=1024, endpoint=False)
+            # define cutoff channels for where to compute polynomial fit
+            freq_low = 150
+            freq_hi = 900
+
+            # generate 3rd order polynomial
+            p = np.poly1d(np.polyfit(freqs[freq_low:freq_hi], amp[freq_low, freq_hi], 3))
+            amp = p(freqs)
 
         # turn it into the right shape
         amp = np.stack((amp,) * Njones).T
