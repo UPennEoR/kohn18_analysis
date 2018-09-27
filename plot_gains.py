@@ -12,6 +12,7 @@ import h5py
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 
 ap = argparse.ArgumentParser(description="Make plots of gain solutions")
 
@@ -23,7 +24,7 @@ ap.add_argument("--kcal", type=str, default=None, help="name of file containing 
 bad_ants = [22, 43, 80, 81]
 
 # define output directory
-outdir = '/data4/paper/HERA19Golden/kohn18_paper/plots2'
+outdir = '/data4/paper/HERA19Golden/kohn18_paper/Plots'
 
 def main(args):
     # matplotlib options
@@ -71,14 +72,12 @@ def main(args):
     freq_array /= 1e6
 
     # make plots of gain amplitude/phase for e/n pols
-    f1 = plt.figure()
-    ax1 = plt.gca()
-    f2 = plt.figure()
-    ax2 = plt.gca()
-    f3 = plt.figure()
-    ax3 = plt.gca()
-    f4 = plt.figure()
-    ax4 = plt.gca()
+    f = plt.figure()
+    gs = gridspec.GridSpec(2, 2, hspace=0., wspace=0.1)
+    ax1 = plt.subplot(gs[0])
+    ax2 = plt.subplot(gs[1], sharey=ax1)
+    ax3 = plt.subplot(gs[2], sharex=ax1)
+    ax4 = plt.subplot(gs[3], sharex=ax2, sharey=ax3)
     counter = 0
     for i, ant in enumerate(ant_array):
         if ant in bad_ants:
@@ -90,42 +89,41 @@ def main(args):
         else:
             linestyle = '-'
         ax1.plot(freq_array, np.abs(e_gain), linestyle=linestyle, label="{:d}".format(ant))
-        ax2.plot(freq_array, np.angle(e_gain), linestyle=linestyle, label="{:d}".format(ant))
-        ax3.plot(freq_array, np.abs(n_gain), linestyle=linestyle, label="{:d}".format(ant))
+        ax2.plot(freq_array, np.abs(n_gain), linestyle=linestyle, label="{:d}".format(ant))
+        ax3.plot(freq_array, np.angle(e_gain), linestyle=linestyle, label="{:d}".format(ant))
         ax4.plot(freq_array, np.angle(n_gain), linestyle=linestyle, label="{:d}".format(ant))
         counter += 1
 
     # make plots pretty
-    for i, ax in enumerate([ax1, ax2, ax3, ax4]):
-        ax.set_xlim((115, 185))
-        ax.set_xlabel(r'Frequency [MHz]')
-        if i % 2 == 0:
-            ax.set_ylim((0, 80))
-            ax.set_ylabel(r'Gain amplitude [(Jy/corr unit)$^{1/2}$]')
-        else:
-            ax.set_ylim((-np.pi, np.pi))
-            ax.set_ylabel(r'Gain phase')
-        leg = ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    ax1.set_xlim((114, 185))
+    ax2.set_xlim((114, 185))
+    ax1.set_ylim((0, 80))
+    ax3.set_ylim((-np.pi, np.pi))
+    ax1.set_ylabel(r'Gain amplitude [(Jy/corr unit)$^{1/2}$]')
+    ax3.set_ylabel(r'Gain phase')
+    ax3.set_xlabel(r'Frequency [MHz]')
+    ax4.set_xlabel(r'Frequency [MHz]')
+    leg = ax4.legend(loc='center left', bbox_to_anchor=(1, 1))
+    props = dict(boxstyle='round', facecolor='white', alpha=0.5)
+    ax1.text(0.8, 0.95, 'E pol', transform=ax1.transAxes, bbox=props,
+             verticalalignment='top')
+    ax2.text(1.9, 0.95, 'N pol', transform=ax1.transAxes, bbox=props,
+             verticalalignment='top')
+    ax2.get_yaxis().set_visible(False)
+    ax4.get_yaxis().set_visible(False)
+
+    # add shaded regions showing low and high band
+    for ax in [ax1, ax2, ax3, ax4]:
+        ax.axvspan(115, 135, alpha=0.3, color='k')
+        ax.axvspan(152, 172, alpha=0.3, color='k')
 
     # save plots
-    output = os.path.join(outdir, 'e_amp.pdf')
+    output = os.path.join(outdir, 'gains.pdf')
     print("Saving {}...".format(output))
-    f1.savefig(output, bbox_inches='tight')
-    output = os.path.join(outdir, 'e_phs.pdf')
-    print("Saving {}...".format(output))
-    f2.savefig(output, bbox_inches='tight')
-    output = os.path.join(outdir, 'n_amp.pdf')
-    print("Saving {}...".format(output))
-    f3.savefig(output, bbox_inches='tight')
-    output = os.path.join(outdir, 'n_phs.pdf')
-    print("Saving {}...".format(output))
-    f4.savefig(output, bbox_inches='tight')
+    f.savefig(output, bbox_inches='tight')
 
     # clean up
-    plt.close(f1)
-    plt.close(f2)
-    plt.close(f3)
-    plt.close(f4)
+    plt.close(f)
 
     return
 
