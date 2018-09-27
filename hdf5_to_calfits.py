@@ -145,7 +145,7 @@ def main(ap):
             amp_orig = copy.deepcopy(amp)
 
             # define frequencies -- assume 1024 frequency channels between 100 and 200 MHz
-            freqs = np.linspace(100., 200., num=1024, endpoint=False)
+            f_array = np.linspace(100., 200., num=1024, endpoint=False)
             # define cutoff channels for where to compute polynomial fit
             freq_low = 150
             freq_hi = 900
@@ -154,8 +154,8 @@ def main(ap):
             amp = np.where(np.abs(amp) == np.inf, 0., amp)
 
             # generate 3rd order polynomial and interpolate
-            p = np.poly1d(np.polyfit(freqs[freq_low:freq_hi], amp[freq_low:freq_hi], 3))
-            amp = p(freqs)
+            p = np.poly1d(np.polyfit(f_array[freq_low:freq_hi], amp[freq_low:freq_hi], 3))
+            amp = p(f_array)
 
             # clean up potential NaNs and undo inversion
             amp = np.where(np.isnan(amp), 0., amp)
@@ -165,8 +165,8 @@ def main(ap):
                 # make comparison plot
                 f = plt.figure()
                 ax = plt.gca()
-                ax.plot(freqs, amp_orig, label='raw data')
-                ax.plot(freqs, amp, label='smoothed')
+                ax.plot(f_array, amp_orig, label='raw data')
+                ax.plot(f_array, amp, label='smoothed')
                 ax.set_xlim((110, 190))
                 leg = ax.legend(loc=0)
                 output = "ratio_comparison.png"
