@@ -43,7 +43,7 @@ def main(args):
     # get just the first time, since all are the same
     # also take reciprocal so we get gains with units of (Jy/corr unit)**(1/2)
     gains = uvc.gain_array[::2, 0, :, 0, :].squeeze()
-    gains = 1j / gains
+    gains = (1+0j) / gains
 
     if args.undo_delays:
         # remove phase wraps from delays
