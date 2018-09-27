@@ -89,8 +89,7 @@ for pol, uvd in uvds.items():
     print 'Making UVPSpec object for pol: ' + pol
     # Apply flags
     uvd = hp.flags.construct_factorizable_mask([uvd])[0]
-    uvd.data_array *= np.logical_not(uvd.flag_array)
-
+    
     # Intialize a cosmology and a beam
     if pol in STD_POLS:
         beamfile = os.path.join(DATA_PATH, 'HERA_NF_dipole_power.beamfits')
@@ -117,6 +116,7 @@ for pol, uvd in uvds.items():
 
     """Categorize baselines into physical separation length"""
     xants = uvd.extra_keywords['xants']
+    ants = uvd.get_ENU_antpos(pick_data_ants=True)[-1]
     #sort antpairs by their physical separations:
     reds, lens, angs = hp.utils.get_reds(uvd)
     bl_lens = []
@@ -134,7 +134,7 @@ for pol, uvd in uvds.items():
                 ant2 = ant1
                 ant1 = ant
                 del ant
-            if (ant1 not in xants) and (ant2 not in xants):
+            if (ant1 not in xants) and (ant2 not in xants) and (ant1 in ants) and (ant2 in ants):
                 bls.append((ant1, ant2))
         bl_groups.append(bls)
         lens = np.delete(lens, np.where(close))
