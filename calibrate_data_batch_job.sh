@@ -10,4 +10,4 @@
 #$ -M plaplant@sas.upenn.edu
 
 # call script to do calibration
-./calibrate_data.sh > caldata.log
+./calibrate_data.sh 2>&1 caldata.log

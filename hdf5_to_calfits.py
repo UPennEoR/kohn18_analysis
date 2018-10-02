@@ -9,6 +9,10 @@ import numpy as np
 import argparse
 import os
 import h5py
+import copy
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 import hera_cal
 
 ap = argparse.ArgumentParser(description="Convert CASA gain solutions in hdf5 files to .calfits files")
@@ -20,6 +24,8 @@ ap.add_argument("--bcal", type=str, default=None, help="name of file containing 
 ap.add_argument("--acal", type=str, default=None, help="name of file containing absolute scale reference spectrum")
 ap.add_argument("--overwrite", default=False, action="store_true", help="overwrite output file if it exists")
 ap.add_argument("--multiply_gains", default=False, action="store_true", help="change gain convention from divide to multiply")
+ap.add_argument("--smooth_ratio", default=False, action="store_true", help="smooth sim/data ratio with a low-order polynomial")
+ap.add_argument("--plot_ratio", default=False, action="store_true", help="plot comparison of unsmoothed to smoothed ratio")
 
 
 def main(ap):
@@ -132,6 +138,41 @@ def main(ap):
                 amp = f["/Data/spectrum_scale"].value
         else:
             raise ValueError("unrecognized filetype for abscale spectrum")
+
+        # optionally smooth the data
+        if args.smooth_ratio:
+            # save copy of original ratio
+            amp_orig = copy.deepcopy(amp)
+
+            # define frequencies -- assume 1024 frequency channels between 100 and 200 MHz
+            f_array = np.linspace(100., 200., num=1024, endpoint=False)
+            # define cutoff channels for where to compute polynomial fit
+            freq_low = 150
+            freq_hi = 900
+            # perform fit on inverse; clean up inf values
+            amp = 1. / amp
+            amp = np.where(np.abs(amp) == np.inf, 0., amp)
+
+            # generate 3rd order polynomial and interpolate
+            p = np.poly1d(np.polyfit(f_array[freq_low:freq_hi], amp[freq_low:freq_hi], 3))
+            amp = p(f_array)
+
+            # clean up potential NaNs and undo inversion
+            amp = np.where(np.isnan(amp), 0., amp)
+            amp = 1. / amp
+
+            if args.plot_ratio:
+                # make comparison plot
+                f = plt.figure()
+                ax = plt.gca()
+                ax.plot(f_array, amp_orig, label='raw data')
+                ax.plot(f_array, amp, label='smoothed')
+                ax.set_xlim((110, 190))
+                leg = ax.legend(loc=0)
+                output = "ratio_comparison.png"
+                print("Saving {}...".format(output))
+                f.savefig(output)
+                plt.close(f)
 
         # turn it into the right shape
         amp = np.stack((amp,) * Njones).T
