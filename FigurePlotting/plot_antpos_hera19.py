@@ -1,7 +1,10 @@
 #! /usr/bin/env python
-import aipy as a, numpy as n, pylab as p
+import aipy as a, numpy as n, matplotlib.pyplot as p #pylab as p
 import sys, optparse
 import IPython
+import matplotlib
+matplotlib.rc('text', usetex=True)
+matplotlib.rc('font', family='serif')
 
 o = optparse.OptionParser()
 a.scripting.add_standard_options(o, cal=True)
