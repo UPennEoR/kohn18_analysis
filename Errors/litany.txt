@@ -1,0 +1,4 @@
+Figure 2 was apparently made with hsa7458_v000, which had 14 m spacing
+instead of 14.6.  Not sure if this propagated to other portions of the
+analysis or not.  - JEA 2018/10/09
+
