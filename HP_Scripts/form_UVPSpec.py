@@ -83,12 +83,13 @@ for pol in pols:
         if pol == 'pV':
             uvdV = hp.pstokes.construct_pstokes(dset1=uvds_std_pols['xy'], dset2=uvds_std_pols['yx'], pstokes='pV')
             uvds[pol] = uvdV
+del uvds_std_pols
 
 """Making UVPspec objects:"""
 for pol, uvd in uvds.items():
     print 'Making UVPSpec object for pol: ' + pol
     # Apply flags
-    uvd = hp.flags.construct_factorizable_mask([uvd])[0]
+    uvd = hp.flags.construct_factorizable_mask([uvd], spw_ranges=[(FREQrng[0],FREQrng[-1])],first='row',greedy_threshold=1.e-6)[0]
     
     # Intialize a cosmology and a beam
     if pol in STD_POLS:

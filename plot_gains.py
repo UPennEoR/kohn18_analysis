@@ -23,6 +23,19 @@ ap.add_argument("--kcal", type=str, default=None, help="name of file containing 
 # define antennas to exclude
 bad_ants = [22, 43, 80, 81]
 
+# define channels to exclude
+bad_chans = np.zeros(1024, dtype=np.bool)
+bad_chans[0:66] = True
+bad_chans[930:] = True
+bad_chans[377:388] = True
+bad_chans[850:855] = True
+bad_chans[831] = True
+bad_chans[769] = True
+bad_chans[511] = True
+bad_chans[913] = True
+bad_chans[695:705] = True
+bad_chans[770:780] = True
+
 # define output directory
 outdir = '/data4/paper/HERA19Golden/kohn18_paper/Plots'
 
@@ -44,7 +57,7 @@ def main(args):
     # get just the first time, since all are the same
     # also take reciprocal so we get gains with units of (Jy/corr unit)**(1/2)
     gains = uvc.gain_array[::2, 0, :, 0, :].squeeze()
-    gains = (1+0j) / gains
+    gains = (1 + 0j) / gains
 
     if args.undo_delays:
         # remove phase wraps from delays
@@ -88,15 +101,21 @@ def main(args):
             linestyle = '--'
         else:
             linestyle = '-'
-        ax1.plot(freq_array, np.abs(e_gain), linestyle=linestyle, label="{:d}".format(ant))
-        ax2.plot(freq_array, np.abs(n_gain), linestyle=linestyle, label="{:d}".format(ant))
-        ax3.plot(freq_array, np.angle(e_gain), linestyle=linestyle, label="{:d}".format(ant))
-        ax4.plot(freq_array, np.angle(n_gain), linestyle=linestyle, label="{:d}".format(ant))
+
+        # mask arrays based on bad channels
+        abs_e = np.ma.masked_where(bad_chans, np.abs(e_gain))
+        abs_n = np.ma.masked_where(bad_chans, np.abs(n_gain))
+        phs_e = np.ma.masked_where(bad_chans, np.angle(e_gain))
+        phs_n = np.ma.masked_where(bad_chans, np.angle(n_gain))
+        ax1.plot(freq_array, abs_e, linestyle=linestyle, label="{:d}".format(ant))
+        ax2.plot(freq_array, abs_n, linestyle=linestyle, label="{:d}".format(ant))
+        ax3.plot(freq_array, phs_e, linestyle=linestyle, label="{:d}".format(ant))
+        ax4.plot(freq_array, phs_n, linestyle=linestyle, label="{:d}".format(ant))
         counter += 1
 
     # make plots pretty
-    ax1.set_xlim((114, 185))
-    ax2.set_xlim((114, 185))
+    ax1.set_xlim((115, 185))
+    ax2.set_xlim((115, 185))
     ax1.set_ylim((0, 80))
     ax3.set_ylim((-np.pi, np.pi))
     ax1.set_ylabel(r'Gain amplitude [(Jy/corr unit)$^{1/2}$]')
@@ -114,8 +133,8 @@ def main(args):
 
     # add shaded regions showing low and high band
     for ax in [ax1, ax2, ax3, ax4]:
-        ax.axvspan(115, 135, alpha=0.3, color='k')
-        ax.axvspan(152, 172, alpha=0.3, color='k')
+        ax.axvspan(120, 130, alpha=0.3, color='k')
+        ax.axvspan(157, 167, alpha=0.3, color='k')
 
     # save plots
     output = os.path.join(outdir, 'gains.pdf')

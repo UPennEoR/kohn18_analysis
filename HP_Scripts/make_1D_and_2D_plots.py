@@ -94,7 +94,7 @@ if one:
         axT.set_xlim([delays[0],delays[-1]])
         axT.set_xlabel(r"$\tau$ $[{\rm ns}]$", fontsize=16)
 
-        scale = .48
+        scale = .465
         axT.set_xlim([lim*scale for lim in axT.get_xlim()])
         if pol=='pV':
             ax.set_xlim([lim*scale for lim in ax.get_xlim()])

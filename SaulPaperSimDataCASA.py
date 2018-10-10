@@ -43,19 +43,31 @@ for msname in msname_:
     flag(msname)
 
     # Make dirty image of Simulated data and export to fits
-    imgname = msname[:-5]+'_TrueVis'
-    fitsimg = msname[:-5]+'_TrueVis.image.fits'
+    imgname = msname[:-5]+'_TrueVis_NoDeconv'
+    fitsimg = msname[:-5]+'_TrueVis_NoDeconv.image.fits'
 
-    clean(msname,imgname,niter=0, weighting = 'briggs',robust =0, imsize =[512 ,512] ,pbcor=False, cell=['500 arcsec'] ,mode='mfs',nterms=1, spw='0:150~900', stokes='IQUV',interactive=False, npercycle=5, threshold='0.1mJy/beam')
+    clean(msname,imgname,niter=0, weighting = 'briggs',robust =0, imsize =[512 ,512] ,pbcor=False,
+          cell=['500 arcsec'] ,phasecenter = 'J2000 17h45m40.0409s -29d0m28.118s',
+          mode='mfs',nterms=1, spw='0:150~900', stokes='IQUV',
+          interactive=False, npercycle=5, threshold='0.1mJy/beam')
     exportfits(imgname+'.image',fitsimg)
+    
+    # Make Interactive CLEAN image of Simulated data and export to fits
+    imgnameC = msname[:-5]+'_TrueVis'
+    fitsimgC = msname[:-5]+'_TrueVis.image.fits'
+    
+    clean(msname,imgnameC,niter=0, weighting = 'briggs',robust =0, imsize =[512 ,512] ,pbcor=False,
+          cell=['500 arcsec'],phasecenter = 'J2000 17h45m40.0409s -29d0m28.118s',
+          mode='mfs',nterms=1, spw='0:150~900', stokes='IQUV',interactive=True, npercycle=5, threshold='0.1mJy/beam')
+    exportfits(imgnameC+'.image',fitsimgC)
 
     # Make Spectrum Image and export to fits
-    fitsname = 'mult_spec_chan_'+msname[:-3]+'.image.fits'
-    imagename = 'mult_spec_chan_'+msname[:-3]+'.image'
+    fitsname = 'mult_spec_1024_chan_'+msname[:-3]+'.image.fits'
+    imagename = 'mult_spec_1024_chan_'+msname[:-3]+'.image'
     
-    clean(msname,imagename[:-6],niter=0,weighting = 'briggs',robust =0,
-          imsize =[512 ,512],cell=['500 arcsec']
-          ,mode='channel',nterms =1,spw='0:150~900',nchan=750, start=150, width=1
+    clean(msname,imagename[:-6],niter=0,weighting = 'briggs',robust =0
+          ,imsize =[512 ,512],cell=['500 arcsec'],phasecenter = 'J2000 17h45m40.0409s -29d0m28.118s'
+          ,mode='channel',nterms =1,spw='0',nchan=1024, start=0, width=1
           ,stokes='IQUV', interactive=False, npercycle=5, threshold='0.1mJy/beam')
     exportfits(imagename,fitsname)
 
