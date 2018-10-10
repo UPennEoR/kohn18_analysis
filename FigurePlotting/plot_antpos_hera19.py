@@ -52,7 +52,7 @@ p.ylabel("North-South Antenna Position (m)")
 a = p.gca()
 if not opts.aspect_neq: a.set_aspect('equal')
 p.savefig('antpos_hera19.pdf',clobber=True)
-p.show()
+#p.show()
 p.close()
 
 # XXX make these options
