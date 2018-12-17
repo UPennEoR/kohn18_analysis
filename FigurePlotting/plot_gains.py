@@ -37,7 +37,7 @@ bad_chans[695:705] = True
 bad_chans[770:780] = True
 
 # define output directory
-outdir = '/data4/paper/HERA19Golden/kohn18_paper/Plots'
+outdir = '/lustre/aoc/projects/hera/plaplant/HERA19Golden/kohn18_paper/Plots'
 
 def main(args):
     # matplotlib options
@@ -50,13 +50,13 @@ def main(args):
 
     # get some metadata
     # hera_cal put duplicates along antenna axis, so only take every other antenna
-    ant_array = uvc.ant_array[::2]
-    freq_array = uvc.freq_array[0, :] * 1e6  # convert to Hz; accidentally saved as MHz
+    ant_array = uvc.ant_array
+    freq_array = uvc.freq_array[0, :]
     jones_array = uvc.jones_array
 
     # get just the first time, since all are the same
     # also take reciprocal so we get gains with units of (Jy/corr unit)**(1/2)
-    gains = uvc.gain_array[::2, 0, :, 0, :].squeeze()
+    gains = uvc.gain_array[:, 0, :, 0, :].squeeze()
     gains = (1 + 0j) / gains
 
     if args.undo_delays:
@@ -116,7 +116,7 @@ def main(args):
     # make plots pretty
     ax1.set_xlim((115, 185))
     ax2.set_xlim((115, 185))
-    ax1.set_ylim((0, 80))
+    ax1.set_ylim((0, 100))
     ax3.set_ylim((-np.pi, np.pi))
     ax1.set_ylabel(r'Gain amplitude [(Jy/corr unit)$^{1/2}$]')
     ax3.set_ylabel(r'Gain phase')
@@ -126,7 +126,7 @@ def main(args):
     props = dict(boxstyle='round', facecolor='white', alpha=0.5)
     ax1.text(0.8, 0.95, 'E pol', transform=ax1.transAxes, bbox=props,
              verticalalignment='top')
-    ax2.text(1.9, 0.95, 'N pol', transform=ax1.transAxes, bbox=props,
+    ax2.text(0.8, 0.95, 'N pol', transform=ax2.transAxes, bbox=props,
              verticalalignment='top')
     ax2.get_yaxis().set_visible(False)
     ax4.get_yaxis().set_visible(False)
