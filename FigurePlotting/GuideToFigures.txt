@@ -6,5 +6,5 @@ Figure 3: The antenna positions.  plot_antpos_hera19.py.
 
 Figure 4: RFI occupancy.  We don't have a script that does this.  ***Paul L P will generate an occupancy script.  
 
-Figure 5: python plot_gains.py --fname gainsfile.    ***Paul L P will find and make sure file is in the repo.
+Figure 5: python plot_gains.py --fname Data/gc.2457548.uvcRP.forceQUV2zero.MS.B.cal.h5 --undo_delays --kcal Data/gc.2457548.uvcRP.forceQUV2zero.MS.K.cal.h5
 
