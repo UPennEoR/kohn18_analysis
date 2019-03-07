@@ -3,3 +3,8 @@ Figure 1: Zac made this.  In principle, this can be made from scripts he wrote p
 Figure 2: Also made by Zac, but in principle also derivable from the E-field beams as the sum of of the elements.  Need a script for this.
 
 Figure 3: The antenna positions.  plot_antpos_hera19.py.  
+
+Figure 4: RFI occupancy.  We don't have a script that does this.  ***Paul L P will generate an occupancy script.  
+
+Figure 5: python plot_gains.py --fname gainsfile.    ***Paul L P will find and make sure file is in the repo.
+
