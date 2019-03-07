@@ -1,0 +1,20 @@
+Step 1:
+add_uvw_and_antpos.py
+Antenna positions were not originally in all the data files for each day before concatenation. We added these positions to each 10-minute file to make sure they were there.  Calculated using hsa7458_v001.py.
+Output: 10-minute hdf5 files that have antenna positions
+
+Step 2:
+python select_LSTs_and_concatenate.py --files {all hdf5 for a day} --pols {any or all of xx xy yx yy} --LSTrng 10.5 23.0 --xants 22 43 80 81 --savepath savepath
+Run this for all hdf5 files in a day's directory.  It will create 4 files (one for each pol) with all times in the given lstrng concatenated together. Makes a new directory in the given savepath LSThrs_10.5_23.0/ that has these new files in it.
+For the paper, the savepath used was: /lustre/aoc/projects/hera/plaplant/HERA19Golden/CalibratedData/
+Output: LSThrs_10.5_23.0/zen.24575??.16700_66112.??.HH.uvcRPCS.uvh5 <-- one for each day and pol
+
+Step 3:
+python combine_days.py --files {all hdf5 for a single pol, one file per day}
+Combines each of the files made in Step 2 by day. Default --savepath saves files in same directory.
+Output: zen.2457548_2457555.16700_66112.??.HH.uvcRPCS.uvh5 <-- in the end there should only be 4 of these, one for each pol
+
+Step 4:
+python form_UVPSpec.py --files {files from Step 3} --pols pI pQ pU pV --FREQrng ??? ??? --savepath savepath
+Forms and saves UVPSpec objects out of the files created in Step 3.  Loading in the files and creating the objects can take a significant amount of time and resources. With the way this was written, it has to be run at least twice: once for each FREQrng (either 150 350 or 530 730).  This can be split again to save some time by loading in only xx and yy files and calling only pols pI pQ, and loading in only xy and yx files and calling pU pV.  Makes a new directory in the given savepath FREQrng_???_???/ to save the newly created files in.  Note that these UVPSpec objects are NOT averaged in time or baseline length; all of the data is contained in here, and averaging mostly happens when plotting is done.
+Output: FREQrng_???_???/zen.2457548.16700_66112.p?.HH.uvcRPCS.uvh5.UVP  <-- one file for each pol created.  Note that even though by our conventions of naming, only one day is listed (2457548) but all days are included in the file.  This was a bug noticed late down the road and I didn't want to change things in fear of it crashing a lot of other files.
