@@ -8,3 +8,14 @@ Figure 4: RFI occupancy.  We don't have a script that does this.  ***Paul L P wi
 
 Figure 5: python plot_gains.py --fname Data/gc.2457548.uvcRP.forceQUV2zero.MS.B.cal.h5 --undo_delays --kcal Data/gc.2457548.uvcRP.forceQUV2zero.MS.K.cal.h5
 
+Figure 6: plot_visibility_phases.ipynb
+
+Figure 7:
+
+Figures 8, 9: python plot_wedges.py --data_files {expects 4 files, pI pQ pU pV} --sim_files {expects 4 files, pI pQ pU pV} --vminmax 9 20 --name savename(without extension) --path savepath
+data_files used: /lustre/aoc/projects/hera/plaplant/HERA19Golden/CalibratedData/LSThrs_10.5_23.0/FREQrng_???_???/zen.2457548.16700_66112.*.HH.uvcRPCS.uvh5.UVP
+sim_files used: /lustre/aoc/projects/hera/pchichur/HERA19/Simulation2/LSThrs_10.5_23.0/FREQrng_???_???/zen.2457755.58922_11048.*.HH.uvCP.uvh5.UVP
+
+Figures 10, 11: plot_real_sim_compare.ipynb. This used the same real and sim data files as figs 8, 9
+
+Figure 12: plot_noise_estimation.ipynb.  Used data from /lustre/aoc/projects/hera/plaplant/HERA19Golden/CalibratedData/LSThrs_10.5_23.0/FREQrng_150_350/zen.2457548.16700_66112.pI.HH.uvcRPCS.uvh5.UVP.  This was saved in intermediate files easier to load in /lustre/aoc/projects/hera/plaplant/HERA19Golden/CalibratedData/LSThrs_10.5_23.0/FREQrng_150_350/24575??_LST_10_23_lowband_pI.uvh5.UVP
