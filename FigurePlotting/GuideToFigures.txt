@@ -1,0 +1,5 @@
+Figure 1: Zac made this.  In principle, this can be made from scripts he wrote plus data files for the 120 and 160 MHz beams, which should be added to the repo.  
+
+Figure 2: Also made by Zac, but in principle also derivable from the E-field beams as the sum of of the elements.  Need a script for this.
+
+Figure 3: The antenna positions.  plot_antpos_hera19.py.  
