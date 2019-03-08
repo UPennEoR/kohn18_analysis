@@ -18,3 +18,8 @@ Step 4:
 python form_UVPSpec.py --files {files from Step 3} --pols pI pQ pU pV --FREQrng ??? ??? --savepath savepath
 Forms and saves UVPSpec objects out of the files created in Step 3.  Loading in the files and creating the objects can take a significant amount of time and resources. With the way this was written, it has to be run at least twice: once for each FREQrng (either 150 350 or 530 730).  This can be split again to save some time by loading in only xx and yy files and calling only pols pI pQ, and loading in only xy and yx files and calling pU pV.  Makes a new directory in the given savepath FREQrng_???_???/ to save the newly created files in.  Note that these UVPSpec objects are NOT averaged in time or baseline length; all of the data is contained in here, and averaging mostly happens when plotting is done.
 Output: FREQrng_???_???/zen.2457548.16700_66112.p?.HH.uvcRPCS.uvh5.UVP  <-- one file for each pol created.  Note that even though by our conventions of naming, only one day is listed (2457548) but all days are included in the file.  This was a bug noticed late down the road and I didn't want to change things in fear of it crashing a lot of other files.
+
+Step 5:
+python save_averages.py --files {any number of files}
+Saves averaged versions of files from step 4 (averaged over baseline group and time) in order to save time later during loading and averaging while making plots.
+Output: .UVPavg
