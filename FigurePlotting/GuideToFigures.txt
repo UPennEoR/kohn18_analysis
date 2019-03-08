@@ -13,8 +13,9 @@ Figure 6: plot_visibility_phases.ipynb.  This just runs and produces output file
 Figure 7:
 
 Figures 8, 9: python plot_wedges.py --data_files {expects 4 files, pI pQ pU pV} --sim_files {expects 4 files, pI pQ pU pV} --vminmax 9 20 --name savename(without extension) --path savepath
-data_files used: /lustre/aoc/projects/hera/plaplant/HERA19Golden/CalibratedData/LSThrs_10.5_23.0/FREQrng_???_???/zen.2457548.16700_66112.*.HH.uvcRPCS.uvh5.UVP
-sim_files used: /lustre/aoc/projects/hera/pchichur/HERA19/Simulation2/LSThrs_10.5_23.0/FREQrng_???_???/zen.2457755.58922_11048.*.HH.uvCP.uvh5.UVP
+data_files used: /lustre/aoc/projects/hera/plaplant/HERA19Golden/CalibratedData/LSThrs_10.5_23.0/FREQrng_???_???/zen.2457548.16700_66112.*.HH.uvcRPCS.uvh5.UVPavg
+sim_files used: /lustre/aoc/projects/hera/pchichur/HERA19/Simulation2/LSThrs_10.5_23.0/FREQrng_???_???/zen.2457755.58922_11048.*.HH.uvCP.uvh5.UVPavg
+***to save time, you should use the UVPavg files created in step 5 of the pipeline
 
 Figures 10, 11: plot_real_sim_compare.ipynb. This used the same real and sim data files as figs 8, 9
 
