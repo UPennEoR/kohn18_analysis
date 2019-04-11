@@ -43,7 +43,7 @@ def main(ap):
     Nfreqs = len(freqs)
     Ntimes = len(times)
     # assume we have linear polarizations x and y for gain solutions, in that order
-    jones_array = ['x', 'y']
+    jones_array = ['Jxx', 'Jyy']
     Njones = len(jones_array)
 
     # start with unity gains
@@ -59,9 +59,9 @@ def main(ap):
     if kfile is not None:
         delays = np.zeros_like(ants, dtype=np.float)
         with h5py.File(kfile, 'r') as f:
-            delay_ants = f["/Data/delay_ants"].value.tolist()
-            delays = f["/Data/delays"].value.T
-            delay_flags = f["/Data/delay_flags"].value.T
+            delay_ants = f["/Data/delay_ants"][()].tolist()
+            delays = f["/Data/delays"][()].T
+            delay_flags = f["/Data/delay_flags"][()].T
         # convert from ns -> s
         delays *= 1e-9
 
@@ -96,10 +96,10 @@ def main(ap):
         with h5py.File(bfile, 'r') as f:
             # casa saves bandpasses as (Njones, Nfreqs, Nants)
             # we want to transpose them to (Nants, Nfreqs, Njones)
-            bp_gains = np.swapaxes(f["/Data/bp"].value, 0, 2)
-            bp_ants = f["/Data/bp_ants"].value.tolist()
-            bp_freqs = f["/Data/bp_freqs"].value
-            bp_flags = np.swapaxes(f["/Data/bp_flags"].value, 0, 2)
+            bp_gains = np.swapaxes(f["/Data/bp"][()], 0, 2)
+            bp_ants = f["/Data/bp_ants"][()].tolist()
+            bp_freqs = f["/Data/bp_freqs"][()]
+            bp_flags = np.swapaxes(f["/Data/bp_flags"][()], 0, 2)
 
         # get number of frequencies
         bp_Nfreqs = len(bp_freqs)
@@ -135,7 +135,7 @@ def main(ap):
         elif ext == '.h5' or ext == '.hdf5':
             # assume spectrum is stored in hdf5 format
             with h5py.File(afile, 'r') as f:
-                amp = f["/Data/spectrum_scale"].value
+                amp = f["/Data/spectrum_scale"][()]
         else:
             raise ValueError("unrecognized filetype for abscale spectrum")
 
@@ -144,17 +144,18 @@ def main(ap):
             # save copy of original ratio
             amp_orig = copy.deepcopy(amp)
 
-            # define frequencies -- assume 1024 frequency channels between 100 and 200 MHz
-            f_array = np.linspace(100., 200., num=1024, endpoint=False)
+            # use same frequencies as data, but in MHz
+            f_array = freqs / 1e6
             # define cutoff channels for where to compute polynomial fit
-            freq_low = 150
-            freq_hi = 900
+            # ignore lowest and highest 100 channels
+            freq_low = 100
+            freq_hi = Nfreqs - 100
             # perform fit on inverse; clean up inf values
             amp = 1. / amp
             amp = np.where(np.abs(amp) == np.inf, 0., amp)
 
             # generate 3rd order polynomial and interpolate
-            p = np.poly1d(np.polyfit(f_array[freq_low:freq_hi], amp[freq_low:freq_hi], 3))
+            p = np.poly1d(np.polyfit(f_array[freq_low:freq_hi], amp[freq_low:freq_hi], 5))
             amp = p(f_array)
 
             # clean up potential NaNs and undo inversion
@@ -167,7 +168,7 @@ def main(ap):
                 ax = plt.gca()
                 ax.plot(f_array, amp_orig, label='raw data')
                 ax.plot(f_array, amp, label='smoothed')
-                ax.set_xlim((110, 190))
+                ax.set_xlim((f_array[freq_low], f_array[freq_hi]))
                 leg = ax.legend(loc=0)
                 output = "ratio_comparison.png"
                 print("Saving {}...".format(output))
